@@ -1,3 +1,19 @@
+const express = require("express");
+const welcomeRouter = require("./data/welcome/welcome");
+const projectsRouter = require("./data/projectsRouter");
+
+const server = express();
+const port = 4000;
+
+server.use(express.json());
+
+server.use(welcomeRouter);
+server.use(projectsRouter);
+
+server.listen(port, () => {
+	console.log(`Server running at http://localhost:${port}`);
+});
+
 /*
 play this: https://www.youtube.com/watch?v=d-diB65scQU
 
