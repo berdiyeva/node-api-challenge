@@ -60,7 +60,7 @@ router.put("/projects/:id", checkProjectData(), (req, res) => {
 
 //---REMOVE-/-DELETE---
 router.delete("/projects/:id", (req, res) => {
-	posts
+	projects
 		.remove(req.params.id)
 		.then((count) => {
 			if (count > 0) {
