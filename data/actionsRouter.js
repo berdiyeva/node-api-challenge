@@ -87,4 +87,35 @@ router.put("/actions/:id", (req, res) => {
 		});
 });
 
+router.post("/actions/:id/actions", checkAction(), (req, res) => {
+	const body = req.body;
+	const id = req.params.id;
+	const newAction = { ...body, project_id: id };
+
+	actions
+		.insert(newAction)
+		.then((action) => {
+			res.status(200).json({ action });
+		})
+		.catch((err) => {
+			res.status(500).json({
+				errorMessage: `There was an error while saving the action ${err.res}`,
+			});
+		});
+});
+
+function checkAction(req, res, next) {
+	if (!req.body) {
+		res.status(400).json({
+			message: "missing data",
+		});
+	} else if (!req.body.description || !req.body.notes) {
+		res.status(400).json({
+			message: "missing fields",
+		});
+	} else {
+		next();
+	}
+}
+
 module.exports = router;
