@@ -38,23 +38,30 @@ router.post("/projects", checkProjectData(), (req, res) => {
 });
 
 //---UPDATE-/-PUT---
-router.put("/projects/:id", checkProjectData(), (req, res) => {
+router.put("/projects/:id", (req, res) => {
+	const id = req.params.id;
+	const body = req.body;
+
 	projects
-		.update(req.params.id, req.body)
-		.then((project) => {
-			if (project) {
-				res.status(200).json(project);
-			} else {
+		.update(id, body)
+		.then((updatedP) => {
+			if (!id) {
 				res.status(404).json({
-					message: "The project with specified ID does not exist",
+					message: "The project with the specific ID does not exist",
 				});
+			} else if (!updatedP.name || !updatedP.description) {
+				res.status(400).json({
+					message: "Please provide description and name for updated actions",
+				});
+			} else {
+				res.status(200).json({ updatedP });
 			}
 		})
-		.catch((error) => {
-			console.log(error);
-			res
-				.status(500)
-				.json({ error: "The project information could not be modified." });
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({
+				error: "The project information could not be updated",
+			});
 		});
 });
 
