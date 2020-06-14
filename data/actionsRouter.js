@@ -3,6 +3,7 @@ const actions = require("./helpers/actionModel");
 
 const router = express.Router();
 
+//---GET---
 router.get("/actions", (req, res) => {
 	actions
 		.get()
@@ -16,6 +17,7 @@ router.get("/actions", (req, res) => {
 			});
 		});
 });
+
 router.get("/actions/:id", (req, res) => {
 	const id = req.params.id;
 
@@ -38,6 +40,7 @@ router.get("/actions/:id", (req, res) => {
 		});
 });
 
+//---REMOVE-/-DELETE---
 router.delete("/actions/:id", (req, res) => {
 	const id = req.params.id;
 
@@ -60,11 +63,12 @@ router.delete("/actions/:id", (req, res) => {
 		});
 });
 
+//---UPDATE-/-PUT---
 router.put("/actions/:id", (req, res) => {
 	const id = req.params.id;
 	const body = req.body;
 
-	actionsDb
+	actions
 		.update(id, body)
 		.then((updatedA) => {
 			if (!id) {
@@ -87,10 +91,11 @@ router.put("/actions/:id", (req, res) => {
 		});
 });
 
-router.post("/actions/:id/actions", checkAction(), (req, res) => {
+//---INSERT-/-POST---
+router.post("/actions/:id/actions", (req, res) => {
 	const body = req.body;
 	const id = req.params.id;
-	const newAction = { ...body, project_id: id };
+	const newAction = { ...body, projectId: id };
 
 	actions
 		.insert(newAction)
@@ -104,18 +109,19 @@ router.post("/actions/:id/actions", checkAction(), (req, res) => {
 		});
 });
 
-function checkAction(req, res, next) {
-	if (!req.body) {
-		res.status(400).json({
-			message: "missing data",
-		});
-	} else if (!req.body.description || !req.body.notes) {
-		res.status(400).json({
-			message: "missing fields",
-		});
-	} else {
-		next();
-	}
-}
+// //---MIDDLEWAREs---
+// function checkAction(req, res, next) {
+// 	if (!req.body) {
+// 		res.status(400).json({
+// 			message: "missing data",
+// 		});
+// 	} else if (!req.body.description || !req.body.notes) {
+// 		res.status(400).json({
+// 			message: "missing fields",
+// 		});
+// 	} else {
+// 		next();
+// 	}
+// }
 
 module.exports = router;

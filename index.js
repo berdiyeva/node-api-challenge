@@ -1,7 +1,7 @@
 const express = require("express");
 const welcomeRouter = require("./data/welcome/welcome");
 const projectsRouter = require("./data/projectsRouter");
-const actionsRouter = require("./data/helpers/actionModel");
+const actionsRouter = require("./data/actionsRouter");
 
 const server = express();
 const port = 4000;
