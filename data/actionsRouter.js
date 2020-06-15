@@ -19,13 +19,11 @@ router.get("/actions", (req, res) => {
 });
 
 router.get("/actions/:id", (req, res) => {
-	const id = req.params.id;
-
 	actions
-		.get(id)
-		.then((specific) => {
-			if (id) {
-				res.status(200).json(specific);
+		.get(req.params.id)
+		.then((action) => {
+			if (req.params.id) {
+				res.status(200).json(action);
 			} else {
 				res.status(404).json({
 					error: "No action with that ID",
@@ -42,17 +40,17 @@ router.get("/actions/:id", (req, res) => {
 
 //---REMOVE-/-DELETE---
 router.delete("/actions/:id", (req, res) => {
-	const id = req.params.id;
-
 	actions
-		.remove(id)
-		.then((deletedA) => {
-			if (!id) {
+		.remove(req.params.id)
+		.then((action) => {
+			if (!req.params.id) {
 				res.status(404).json({
 					message: "The action with the specific ID does not exist",
 				});
 			} else {
-				res.status(200).json({ deletedA });
+				res
+					.status(200)
+					.json({ action, message: "Action was successfully deleted" });
 			}
 		})
 		.catch((err) => {
@@ -65,50 +63,70 @@ router.delete("/actions/:id", (req, res) => {
 
 //---UPDATE-/-PUT---
 router.put("/actions/:id", (req, res) => {
-	const id = req.params.id;
-	const body = req.body;
-
-	actions
-		.update(id, body)
-		.then((updatedA) => {
-			if (!id) {
-				res.status(404).json({
-					message: "The action with the specific ID does not exist",
-				});
-			} else if (!updatedA.description || !updatedA.notes) {
-				res.status(400).json({
-					message: "Please provide description and notes for updated actions",
-				});
-			} else {
-				res.status(200).json({ updatedA });
-			}
-		})
-		.catch((err) => {
-			console.log(err);
-			res.status(500).json({
-				error: "The action information could not be updated",
+	actions.get(req.params.id).then((action) => {
+		if (!req.body.project_id || !req.body.description || req.body.completed) {
+			res.status(400).json({
+				message: "Please provide description and notes for updated actions",
 			});
-		});
+		} else {
+			actions
+				.update(req.params.id, req.body)
+				.then((action) => {
+					res.status(200).json(req.body);
+				})
+				.catch((error) => {
+					res.status(500).json({
+						error: "The action information could not be updated",
+					});
+				});
+		}
+	});
 });
 
 //---INSERT-/-POST---
-router.post("/actions/:id/actions", (req, res) => {
-	const body = req.body;
-	const id = req.params.id;
-	const newAction = { ...body, projectId: id };
+// router.post("/actions/:id/actions", (req, res) => {
+// 	const body = req.body;
+// 	const id = req.params.id;
+// 	const newAction = { ...body, projectId: id };
 
+// 	actions
+// 		.insert(newAction)
+// 		.then((action) => {
+// 			res.status(200).json({ action });
+// 		})
+// 		.catch((err) => {
+// 			res.status(500).json({
+// 				errorMessage: `There was an error while saving the action ${err.res}`,
+// 			});
+// 		});
+// });
+
+router.post("/actions/:id", (req, res) => {
 	actions
-		.insert(newAction)
+		.get()
 		.then((action) => {
-			res.status(200).json({ action });
+			if (!req.body.project_id || !req.body.description || req.body.completed) {
+				res.status(400).json({
+					message: "Please fill all the fields",
+				});
+			} else {
+				actions
+					.insert(req.body)
+					.then((action) => {
+						res.status(201).json(action);
+					})
+					.catch((error) => {
+						console.log(error);
+						res.status(500).json({
+							message: "Error adding the action",
+						});
+					});
+			}
 		})
-		.catch((err) => {
-			res.status(500).json({
-				errorMessage: `There was an error while saving the action ${err.res}`,
-			});
+		.catch((error) => {
+			res.status(500).json({ message: "Could not add a new action" });
 		});
 });
-
 // //---MIDDLEWAREs---
 // function checkAction(req, res, next) {
 // 	if (!req.body) {

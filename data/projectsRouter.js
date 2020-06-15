@@ -7,8 +7,8 @@ const router = express.Router();
 router.get("/projects", (req, res) => {
 	projects
 		.get()
-		.then((projects) => {
-			res.status(200).json(projects);
+		.then((project) => {
+			res.status(200).json(project);
 		})
 		.catch((error) => {
 			console.log(error);
@@ -18,51 +18,77 @@ router.get("/projects", (req, res) => {
 		});
 });
 
-router.get("/projects/:id", checkProjectID(), (req, res) => {
-	res.status(200).json(res.project);
-});
-
-//---INSERT-/-POST---
-router.post("/projects", checkProjectData(), (req, res) => {
+router.get("/projects/:id", (req, res) => {
 	projects
-		.insert(req.body)
+		.get(req.param.id)
 		.then((project) => {
-			res.status(201).json(project);
+			res.status(200).json(project);
 		})
 		.catch((error) => {
 			console.log(error);
 			res.status(500).json({
-				message: "Error adding the project",
+				message: "The project with the specific ID does not exist",
 			});
 		});
 });
 
-//---UPDATE-/-PUT---
-router.put("/projects/:id", (req, res) => {
-	const id = req.params.id;
-	const body = req.body;
-
+router.get("/projects/:id/actions", (req, res) => {
 	projects
-		.update(id, body)
-		.then((updatedP) => {
-			if (!id) {
-				res.status(404).json({
-					message: "The project with the specific ID does not exist",
-				});
-			} else if (!updatedP.name || !updatedP.description) {
-				res.status(400).json({
-					message: "Please provide description and name for updated actions",
-				});
-			} else {
-				res.status(200).json({ updatedP });
-			}
+		.getProjectActions(req.params.id)
+		.then((action) => {
+			res.status(200).json(action);
 		})
-		.catch((err) => {
-			console.log(err);
+		.catch((error) => {
+			console.log(error);
 			res.status(500).json({
-				error: "The project information could not be updated",
+				message: "The action with specific ID does not exist",
 			});
 		});
+});
+
+//---INSERT-/-POST---
+router.post("/projects/:id", (req, res) => {
+	projects.get().then((project) => {
+		if (!req.body.name || !req.body.description) {
+			res.status(400).json({
+				message: "Please fill all the fields",
+			});
+		} else {
+			projects
+				.insert(req.body)
+				.then((project) => {
+					res.status(201).json(project);
+				})
+				.catch((error) => {
+					console.log(error);
+					res.status(500).json({
+						message: "Error adding the project",
+					});
+				});
+		}
+	});
+});
+
+//---UPDATE-/-PUT---
+router.put("/projects/:id", (req, res) => {
+	projects.get(req.params.id).then((project) => {
+		if (!req.body.name || !req.body.description) {
+			res.status(400).json({
+				message: "Please fill all the fields",
+			});
+		} else {
+			projects
+				.update(req.params.id, req.body)
+				.then((project) => {
+					res.status(201).json(req.body);
+				})
+				.catch((error) => {
+					res.status(500).json({
+						error: "The project information could not be updated",
+					});
+				});
+		}
+	});
 });
 
 //---REMOVE-/-DELETE---
@@ -109,12 +135,15 @@ function checkProjectID() {
 
 function checkProjectData() {
 	return (req, res, next) => {
-		if (!req.body.name || !req.body.description) {
-			return res.status(400).json({
-				message: "Missing project name and description.",
-			});
+		if (req.body) {
+			if (req.body.name || req.body.description) {
+				next();
+			} else {
+				return res.status(400).json({
+					message: "Missing project name and description.",
+				});
+			}
 		}
-		next();
 	};
 }
 
