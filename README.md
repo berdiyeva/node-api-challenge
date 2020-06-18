@@ -40,13 +40,24 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 - [ ] Mention two parts of Express that you learned about this week.
 
+        Routing and Middleware
+
 - [ ] Describe Middleware?
+
+        An array of functions that get activated in the order they are written in server code.
 
 - [ ] Describe a Resource?
 
+        I didn't understand the quiestion.
+
 - [ ] What can the API return to help clients know if a request was successful?
 
+        HTTP status code (200)s and a status text/message
+
 - [ ] How can we partition our application into sub-applications?
+
+        Routing is the one of the main feautures of Express that provides a way to break the app into different request handlers for each URL+HTTP method combination.
+        Using Routing will help to build several endpoints and different ways to pass the data to API, and organize code by combining it with REST.
 
 ## Minimum Viable Product
 
